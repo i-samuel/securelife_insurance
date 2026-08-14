@@ -1,0 +1,8 @@
+#node modules
+server/node_modules/
+client/node_modules/
+
+#env
+.env
+
+PROMPT_DOCUMENTATION.md

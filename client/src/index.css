@@ -1,6 +1,18 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
+/* -------------------------------------------------------------
+   SecureLife Design Tokens & Production Architecture
+-------------------------------------------------------------- */
 :root {
+  --brand-navy-dark: #0B132A;
+  --brand-blue-primary: #0265DC;
+  --brand-blue-hover: #0052B4;
+  --brand-cyan-accent: #38BDF8;
+  --brand-cyan-subtle: rgba(56, 189, 248, 0.15);
+  --bg-page-light: #F4F7FA;
+  --bg-card-light: #FFFFFF;
+
+  /* CRM Specific Tokens */
   --crm-sidebar-bg: #0B132B;
   --crm-sidebar-hover: #1C2541;
   --crm-sidebar-active: #2563EB;
@@ -12,21 +24,152 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   background-color: var(--crm-bg-light);
   color: #1E293B;
 }
 
-/* CRM Layout */
+/* -------------------------------------------------------------
+   Reusable Utility Classes (Eliminating Inline CSS)
+-------------------------------------------------------------- */
+.bg-navy-dark {
+  background-color: var(--brand-navy-dark) !important;
+}
+
+.text-navy-dark {
+  color: var(--brand-navy-dark) !important;
+}
+
+.bg-brand-blue {
+  background-color: var(--brand-blue-primary) !important;
+  border-color: var(--brand-blue-primary) !important;
+}
+
+.text-brand-blue {
+  color: var(--brand-blue-primary) !important;
+}
+
+.text-cyan-accent {
+  color: var(--brand-cyan-accent) !important;
+}
+
+.bg-cyan-subtle {
+  background-color: var(--brand-cyan-subtle) !important;
+  color: var(--brand-cyan-accent) !important;
+}
+
+.bg-page-light {
+  background-color: var(--bg-page-light) !important;
+}
+
+/* Custom Buttons */
+.btn-brand-blue {
+  background-color: var(--brand-blue-primary);
+  border-color: var(--brand-blue-primary);
+  color: #FFFFFF;
+  transition: all 0.25s ease;
+}
+
+.btn-brand-blue:hover,
+.btn-brand-blue:focus {
+  background-color: var(--brand-blue-hover);
+  border-color: var(--brand-blue-hover);
+  color: #FFFFFF;
+}
+
+.btn-brand-navy {
+  background-color: var(--brand-navy-dark);
+  border-color: var(--brand-navy-dark);
+  color: #FFFFFF;
+  transition: all 0.25s ease;
+}
+
+.btn-brand-navy:hover,
+.btn-brand-navy:focus {
+  background-color: #060B18;
+  border-color: #060B18;
+  color: #FFFFFF;
+}
+
+/* Section Header Typography */
+.section-tag {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+}
+
+.max-w-640 {
+  max-width: 640px;
+}
+
+.max-w-560 {
+  max-width: 560px;
+}
+
+.max-w-320 {
+  max-width: 320px;
+}
+
+/* -------------------------------------------------------------
+   Micro-Animations & Visual Interactions
+-------------------------------------------------------------- */
+
+/* Arrow Button Micro-Animation */
+.btn-animate-arrow svg {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-animate-arrow:hover svg {
+  transform: translateX(5px);
+}
+
+/* Plan Cards Hover Animation */
+.plan-card-hover {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.plan-card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 22px 38px rgba(2, 101, 220, 0.14) !important;
+  border-color: var(--brand-blue-primary) !important;
+}
+
+/* Polished Compare Matrix Table Spacing */
+.compare-matrix-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.compare-matrix-table td,
+.compare-matrix-table th {
+  padding: 1.1rem 1.5rem !important;
+  vertical-align: middle;
+}
+
+.compare-matrix-table tr.table-subheading td {
+  padding: 0.75rem 1.5rem !important;
+  letter-spacing: 0.06em;
+}
+
+.compare-matrix-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.compare-matrix-table tbody tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+/* -------------------------------------------------------------
+   CRM Specific Styles & Modal Layouts
+-------------------------------------------------------------- */
 .crm-container {
   display: flex;
   min-height: 100vh;
 }
 
-/* Dark Sidebar */
 .crm-sidebar {
   width: 250px;
   background-color: var(--crm-sidebar-bg);
@@ -99,7 +242,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* CRM Content Wrapper */
 .crm-content {
   flex-grow: 1;
   display: flex;
@@ -108,7 +250,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Topbar Header */
 .crm-topbar {
   height: 64px;
   background: #FFFFFF;
@@ -117,15 +258,6 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 2rem;
-}
-
-.crm-search-input {
-  width: 320px;
-  background: #F1F5F9;
-  border: 1px solid #E2E8F0;
-  border-radius: 20px;
-  padding: 0.4rem 1rem 0.4rem 2.5rem;
-  font-size: 0.88rem;
 }
 
 .crm-avatar-pill {
@@ -141,7 +273,6 @@ body {
   font-size: 0.82rem;
 }
 
-/* Dashboard Cards */
 .metric-card {
   background: #FFFFFF;
   border: 1px solid var(--crm-card-border);
@@ -156,7 +287,6 @@ body {
   color: #0F172A;
 }
 
-/* Pipeline Bars */
 .pipeline-bar-container {
   height: 6px;
   background: #E2E8F0;
@@ -213,7 +343,6 @@ body {
   border: 1px solid #FEF08A;
 }
 
-/* Advisor Workload Tag */
 .won-tag {
   background: #ECFDF5;
   color: #059669;
@@ -223,40 +352,25 @@ body {
   border-radius: 12px;
 }
 
-/* -------------------------------------------------------------
-   Micro-Animations & Visual Enhancements for Public Website
--------------------------------------------------------------- */
-
-/* Arrow Button Micro-Animation */
-.btn-animate-arrow svg {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* Modal & Scroll Utilities */
+.crm-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
-.btn-animate-arrow:hover svg {
-  transform: translateX(5px);
+.crm-modal-scrollable-body {
+  max-height: calc(90vh - 130px);
+  overflow-y: auto;
 }
 
-/* Plan Cards Hover Animation */
-.plan-card-hover {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+.crm-recommendation-scroll-box {
+  max-height: 520px;
+  overflow-y: auto;
 }
 
-.plan-card-hover:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 22px 38px rgba(2, 101, 220, 0.14) !important;
-  border-color: #0265DC !important;
+.style-small-text {
+  font-size: 0.75rem !important;
 }
 
-/* Polished Table Styling */
-.compare-matrix-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.compare-matrix-table tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.compare-matrix-table tbody tr:hover {
-  background-color: #F8FAFC !important;
+.style-tiny-text {
+  font-size: 0.72rem !important;
 }

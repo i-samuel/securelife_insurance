@@ -110,6 +110,26 @@ const getDashboardStats = async (advisorId = null) => {
 
   const recentActivitiesRes = await db.query(recentActivitiesQuery, actParams);
 
+  // 5. 100% Accurate Real Monthly Trend Query (Last 6 Months)
+  let trendQuery = `
+    SELECT 
+      TO_CHAR(DATE_TRUNC('month', created_at), 'Mon') AS month,
+      COUNT(*) AS leads,
+      COUNT(CASE WHEN status = 'CONVERTED' THEN 1 END) AS conversions,
+      MIN(DATE_TRUNC('month', created_at)) AS month_date
+    FROM leads
+    ${whereClause}
+    WHERE created_at >= NOW() - INTERVAL '6 months'
+    GROUP BY DATE_TRUNC('month', created_at), TO_CHAR(DATE_TRUNC('month', created_at), 'Mon')
+    ORDER BY month_date ASC;
+  `;
+  const trendRes = await db.query(trendQuery, params);
+  const monthlyTrend = trendRes.rows.map((r) => ({
+    month: r.month,
+    leads: parseInt(r.leads, 10),
+    conversions: parseInt(r.conversions, 10),
+  }));
+
   return {
     kpis: {
       totalLeads,
@@ -124,6 +144,7 @@ const getDashboardStats = async (advisorId = null) => {
     pipeline,
     topAdvisors,
     recentActivities: recentActivitiesRes.rows,
+    monthlyTrend,
   };
 };
 

@@ -24,17 +24,26 @@ const QuoteView = () => {
   const [formError, setFormError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchPublicPlans = async () => {
       try {
         const res = await apiFetch('/plans/public');
-        if (res.status === 'success') {
+        if (isMounted && res.status === 'success') {
           setPlans(res.data.plans || []);
         }
       } catch (err) {
-        console.error('Error loading plans for quote form:', err);
+        if (isMounted) {
+          console.error('Error loading plans for quote form:', err);
+        }
       }
     };
+
     fetchPublicPlans();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -73,7 +82,7 @@ const QuoteView = () => {
   };
 
   return (
-    <div className="py-5" style={{ backgroundColor: '#F4F7FA', minHeight: '100vh' }}>
+    <div className="py-5 bg-page-light min-vh-100">
       <div className="container py-3">
         {/* Back Link */}
         <div className="mb-4">
@@ -84,13 +93,13 @@ const QuoteView = () => {
 
         {/* Section Heading */}
         <div className="mb-5">
-          <span className="fw-bold small text-uppercase tracking-wider d-block mb-1" style={{ letterSpacing: '0.08em', fontSize: '0.78rem', color: '#0265DC' }}>
+          <span className="fw-bold small text-uppercase section-tag text-brand-blue d-block mb-1">
             LEAD ENQUIRY
           </span>
-          <h1 className="fw-bold text-dark display-5 mb-3" style={{ color: '#0B132A' }}>
+          <h1 className="fw-bold text-navy-dark display-5 mb-3">
             Request your personalised quote
           </h1>
-          <p className="text-secondary lead fs-6 max-w-2xl mb-0" style={{ maxWidth: '640px' }}>
+          <p className="text-secondary lead fs-6 mb-0 max-w-640">
             Share a few details about yourself and the cover you're looking for. A licensed SecureLife advisor will review your request and send a tailored quote — no payment or obligation required.
           </p>
         </div>
@@ -246,13 +255,12 @@ const QuoteView = () => {
                 </div>
 
                 <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 pt-2">
-                  <p className="text-secondary small mb-0" style={{ fontSize: '0.78rem', maxWidth: '340px' }}>
+                  <p className="text-secondary small mb-0 max-w-320 style-small">
                     By submitting you agree to be contacted about your enquiry. We never share your details.
                   </p>
                   <button
                     type="submit"
-                    className="btn btn-primary px-4 py-2.5 fw-semibold rounded-3 shadow-sm"
-                    style={{ backgroundColor: '#0265DC', borderColor: '#0265DC' }}
+                    className="btn btn-brand-blue px-4 py-2.5 fw-semibold rounded-3 shadow-sm"
                     disabled={formSubmitting}
                   >
                     {formSubmitting ? 'Submitting...' : 'Submit enquiry'}
@@ -264,9 +272,9 @@ const QuoteView = () => {
 
           {/* Right Dark Card with Accent Cyan Icons and Phone Color */}
           <div className="col-12 col-lg-5">
-            <div className="text-white rounded-4 p-4 p-md-5 shadow-sm" style={{ backgroundColor: '#0B132A' }}>
+            <div className="text-white rounded-4 p-4 p-md-5 shadow-sm bg-navy-dark">
               <div className="d-flex align-items-center gap-2 mb-4 fs-5 fw-bold text-white">
-                <div className="rounded-circle p-1.5 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>
+                <div className="rounded-circle p-1.5 d-flex align-items-center justify-content-center bg-cyan-subtle">
                   <Shield size={20} />
                 </div>
                 <span>Why request a quote</span>
@@ -274,25 +282,25 @@ const QuoteView = () => {
 
               <div className="d-flex flex-column gap-3 mb-4 small opacity-90">
                 <div className="d-flex align-items-start gap-3">
-                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', width: 24, height: 24 }}>
+                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5 bg-cyan-subtle" style={{ width: 24, height: 24 }}>
                     <CheckCircle size={14} />
                   </div>
                   <span className="text-white opacity-90">Advisor-reviewed pricing for your household</span>
                 </div>
                 <div className="d-flex align-items-start gap-3">
-                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', width: 24, height: 24 }}>
+                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5 bg-cyan-subtle" style={{ width: 24, height: 24 }}>
                     <CheckCircle size={14} />
                   </div>
                   <span className="text-white opacity-90">Basic, Gold and Premium compared side by side</span>
                 </div>
                 <div className="d-flex align-items-start gap-3">
-                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', width: 24, height: 24 }}>
+                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5 bg-cyan-subtle" style={{ width: 24, height: 24 }}>
                     <CheckCircle size={14} />
                   </div>
                   <span className="text-white opacity-90">No payment details, no obligation</span>
                 </div>
                 <div className="d-flex align-items-start gap-3">
-                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', width: 24, height: 24 }}>
+                  <div className="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5 bg-cyan-subtle" style={{ width: 24, height: 24 }}>
                     <CheckCircle size={14} />
                   </div>
                   <span className="text-white opacity-90">Claims team answers the first time you call</span>
@@ -302,14 +310,14 @@ const QuoteView = () => {
               <hr className="border-secondary opacity-25 my-4" />
 
               <div className="pt-2">
-                <div className="text-uppercase small fw-bold tracking-wider text-secondary mb-2" style={{ letterSpacing: '0.08em', fontSize: '0.72rem', color: '#94A3B8' }}>
+                <div className="text-uppercase small fw-bold section-tag text-secondary mb-2">
                   PREFER TO TALK?
                 </div>
-                <div className="fs-4 fw-bold mb-1 d-flex align-items-center gap-2" style={{ color: '#38BDF8' }}>
+                <div className="fs-4 fw-bold mb-1 d-flex align-items-center gap-2 text-cyan-accent">
                   <PhoneCall size={20} />
                   <span>+1 (800) 555-0142</span>
                 </div>
-                <div className="text-secondary style-small" style={{ color: '#94A3B8' }}>Mon-Fri, 8am-8pm ET</div>
+                <div className="text-secondary style-small">Mon-Fri, 8am-8pm ET</div>
               </div>
             </div>
           </div>

@@ -1,12 +1,12 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, Mail, Calendar } from 'lucide-react';
+import { Shield, Mail } from 'lucide-react';
 
 const ProfileView = () => {
   const { user } = useAuth();
 
   return (
-    <div style={{ maxWidth: 600 }}>
+    <div className="max-w-640">
       <h4 className="fw-bold text-dark mb-1">User Profile</h4>
       <p className="text-secondary small mb-4">View your current authenticated staff account details and system authorization.</p>
 

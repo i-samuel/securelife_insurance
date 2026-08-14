@@ -13,21 +13,31 @@ const DashboardView = () => {
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchStats = async () => {
       try {
         const res = await apiFetch('/dashboard/stats');
-        if (res.status === 'success') {
+        if (isMounted && res.status === 'success') {
           setStats(res.data);
         }
       } catch (err) {
-        console.error('Error loading dashboard stats:', err);
-        setError('Failed to fetch dashboard metrics');
+        if (isMounted) {
+          console.error('Error loading dashboard stats:', err);
+          setError('Failed to fetch dashboard metrics');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (loading) {
@@ -45,15 +55,19 @@ const DashboardView = () => {
   const topAdvisors = stats?.topAdvisors || [];
   const recentActivities = stats?.recentActivities || [];
 
-  // Monthly trend data for interactive chart
-  const trendData = [
-    { month: 'Mar', leads: 42, conversions: 8 },
-    { month: 'Apr', leads: 50, conversions: 11 },
-    { month: 'May', leads: 48, conversions: 10 },
-    { month: 'Jun', leads: 64, conversions: 15 },
-    { month: 'Jul', leads: 58, conversions: 14 },
-    { month: 'Aug', leads: kpis.totalLeads || 72, conversions: kpis.convertedLeads || 18 },
-  ];
+  // 100% Real PostgreSQL Database Monthly Trend Data
+  const trendData = stats?.monthlyTrend && stats.monthlyTrend.length > 0
+    ? stats.monthlyTrend
+    : [
+        { month: 'Mar', leads: 0, conversions: 0 },
+        { month: 'Apr', leads: 0, conversions: 0 },
+        { month: 'May', leads: 0, conversions: 0 },
+        { month: 'Jun', leads: 0, conversions: 0 },
+        { month: 'Jul', leads: 0, conversions: 0 },
+        { month: 'Aug', leads: kpis.totalLeads || 0, conversions: kpis.convertedLeads || 0 },
+      ];
+
+  const maxLeadsInChart = Math.max(...trendData.map((t) => t.leads), 1);
 
   return (
     <div>
@@ -149,7 +163,7 @@ const DashboardView = () => {
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <div>
                   <div className="fw-bold">Leads vs Conversions Monthly Trend</div>
-                  <div className="text-secondary small">Hover over bars to inspect monthly comparisons</div>
+                  <div className="text-secondary small">Real-time PostgreSQL monthly metrics</div>
                 </div>
                 <div className="d-flex align-items-center gap-3 small">
                   <span className="d-flex align-items-center gap-1">
@@ -163,7 +177,7 @@ const DashboardView = () => {
 
               {/* Interactive Bar Chart with Hover Tooltip */}
               <div className="p-4 text-center bg-light rounded position-relative" style={{ minHeight: 230 }}>
-                {activeBar !== null && (
+                {activeBar !== null && trendData[activeBar] && (
                   <div
                     className="position-absolute bg-dark text-white rounded p-2 shadow style-small"
                     style={{
@@ -177,38 +191,43 @@ const DashboardView = () => {
                   </div>
                 )}
 
-                <div className="w-100 d-flex align-items-end justify-content-between px-3" style={{ height: 150 }}>
-                  {trendData.map((d, index) => (
-                    <div
-                      key={d.month}
-                      className="d-flex align-items-end justify-content-center gap-1 cursor-pointer p-1 rounded"
-                      style={{ width: '14%', height: '100%' }}
-                      onMouseEnter={() => setActiveBar(index)}
-                      onMouseLeave={() => setActiveBar(null)}
-                    >
+                <div className="w-100 d-flex align-items-end justify-content-around px-2" style={{ height: 150 }}>
+                  {trendData.map((d, index) => {
+                    const leadPct = Math.max(5, (d.leads / maxLeadsInChart) * 100);
+                    const convPct = Math.max(0, (d.conversions / maxLeadsInChart) * 100);
+
+                    return (
                       <div
-                        className="bg-primary rounded-top transition-all"
-                        style={{
-                          width: '45%',
-                          height: `${(d.leads / 80) * 100}%`,
-                          opacity: activeBar === index ? 1 : 0.8,
-                        }}
-                      ></div>
-                      <div
-                        className="bg-success rounded-top transition-all"
-                        style={{
-                          width: '45%',
-                          height: `${(d.conversions / 30) * 100}%`,
-                          opacity: activeBar === index ? 1 : 0.8,
-                        }}
-                      ></div>
-                    </div>
-                  ))}
+                        key={index}
+                        className="d-flex align-items-end justify-content-center gap-1 cursor-pointer p-1 rounded"
+                        style={{ width: `${90 / (trendData.length || 1)}%`, height: '100%' }}
+                        onMouseEnter={() => setActiveBar(index)}
+                        onMouseLeave={() => setActiveBar(null)}
+                      >
+                        <div
+                          className="bg-primary rounded-top transition-all"
+                          style={{
+                            width: '45%',
+                            height: `${leadPct}%`,
+                            opacity: activeBar === index ? 1 : 0.85,
+                          }}
+                        ></div>
+                        <div
+                          className="bg-success rounded-top transition-all"
+                          style={{
+                            width: '45%',
+                            height: `${convPct}%`,
+                            opacity: activeBar === index ? 1 : 0.85,
+                          }}
+                        ></div>
+                      </div>
+                    );
+                  })}
                 </div>
 
-                <div className="d-flex justify-content-between w-100 px-3 mt-2 text-muted style-small" style={{ fontSize: '0.78rem' }}>
-                  {trendData.map((d) => (
-                    <span key={d.month} className="fw-semibold">{d.month}</span>
+                <div className="d-flex justify-content-around w-100 px-2 mt-2 text-muted style-small" style={{ fontSize: '0.78rem' }}>
+                  {trendData.map((d, idx) => (
+                    <span key={idx} className="fw-semibold">{d.month}</span>
                   ))}
                 </div>
               </div>
@@ -305,7 +324,7 @@ const DashboardView = () => {
                         </div>
                         <div>
                           <div className="fw-semibold text-dark style-small">{adv.name}</div>
-                          <div className="text-muted style-small" style={{ fontSize: '0.72rem' }}>
+                          <div className="text-muted style-tiny-text">
                             {adv.totalAssigned} leads assigned
                           </div>
                         </div>

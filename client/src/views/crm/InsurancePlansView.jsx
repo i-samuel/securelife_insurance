@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { Shield, Plus, CheckCircle, ToggleLeft, ToggleRight, Trash2, Edit } from 'lucide-react';
+
+// Modular CRM Components
+import AddPlanModal from '../../components/crm/AddPlanModal';
+import EditPlanModal from '../../components/crm/EditPlanModal';
 
 const InsurancePlansView = () => {
   const [plans, setPlans] = useState([]);
@@ -9,7 +13,7 @@ const InsurancePlansView = () => {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
+  
   const initialPlanFormState = {
     name: '',
     slug: '',
@@ -31,7 +35,7 @@ const InsurancePlansView = () => {
 
   const { isAdmin } = useAuth();
 
-  const fetchPlansAndBenefits = async () => {
+  const fetchPlansAndBenefits = useCallback(async () => {
     try {
       setLoading(true);
       const [planRes, benRes] = await Promise.all([
@@ -46,11 +50,11 @@ const InsurancePlansView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchPlansAndBenefits();
-  }, []);
+  }, [fetchPlansAndBenefits]);
 
   const handleToggleActive = async (planId, currentStatus) => {
     try {
@@ -236,7 +240,8 @@ const InsurancePlansView = () => {
                       <strong>Eligibility:</strong> {plan.eligibility_description}
                     </div>
                   )}
-                  <div className="border-top pt-3">
+
+                  <div className="border-top pt-3 mt-auto">
                     <div className="fw-semibold small text-secondary mb-2">Included Relational Benefits:</div>
                     <div className="d-flex flex-column gap-1">
                       {includedBenefits.length === 0 ? (
@@ -259,264 +264,26 @@ const InsurancePlansView = () => {
       </div>
 
       {/* Add Plan Modal */}
-      {showAddModal && (
-        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content rounded-4 border-0 shadow-lg" style={{ maxHeight: '90vh', overflow: 'hidden' }}>
-              <div className="modal-header border-bottom bg-light">
-                <h5 className="modal-title fw-bold">Create Insurance Plan</h5>
-                <button type="button" className="btn-close" onClick={() => setShowAddModal(false)}></button>
-              </div>
-              <form onSubmit={handleCreatePlan} className="d-flex flex-column" style={{ maxHeight: 'calc(90vh - 65px)' }}>
-                <div className="modal-body p-4" style={{ overflowY: 'auto' }}>
-                  <div className="row g-2 mb-3">
-                    <div className="col-6">
-                      <label className="form-label small fw-semibold">Plan Name *</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        required
-                        placeholder="e.g. Diamond Life Cover"
-                        value={newPlanForm.name}
-                        onChange={(e) => setNewPlanForm({ ...newPlanForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                      />
-                    </div>
-                    <div className="col-6">
-                      <label className="form-label small fw-semibold">Slug *</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        required
-                        placeholder="e.g. diamond-life-cover"
-                        value={newPlanForm.slug}
-                        onChange={(e) => setNewPlanForm({ ...newPlanForm, slug: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Description</label>
-                    <textarea
-                      className="form-control form-control-sm"
-                      rows="2"
-                      placeholder="Brief policy overview..."
-                      value={newPlanForm.description}
-                      onChange={(e) => setNewPlanForm({ ...newPlanForm, description: e.target.value })}
-                    ></textarea>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Eligibility Description</label>
-                    <textarea
-                      className="form-control form-control-sm"
-                      rows="2"
-                      placeholder="e.g. Available to non-smokers aged 18 to 65 with medical checkup."
-                      value={newPlanForm.eligibilityDescription}
-                      onChange={(e) => setNewPlanForm({ ...newPlanForm, eligibilityDescription: e.target.value })}
-                    ></textarea>
-                  </div>
-
-                  <div className="row g-2 mb-3">
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Age</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.minAge} onChange={(e) => setNewPlanForm({ ...newPlanForm, minAge: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Age</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.maxAge} onChange={(e) => setNewPlanForm({ ...newPlanForm, maxAge: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Coverage ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.minCoverage} onChange={(e) => setNewPlanForm({ ...newPlanForm, minCoverage: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Coverage ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.maxCoverage} onChange={(e) => setNewPlanForm({ ...newPlanForm, maxCoverage: Number(e.target.value) })} />
-                    </div>
-                  </div>
-
-                  <div className="row g-2 mb-3">
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Term (yrs)</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.minPolicyTerm} onChange={(e) => setNewPlanForm({ ...newPlanForm, minPolicyTerm: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Term (yrs)</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.maxPolicyTerm} onChange={(e) => setNewPlanForm({ ...newPlanForm, maxPolicyTerm: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Premium ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.minPremium} onChange={(e) => setNewPlanForm({ ...newPlanForm, minPremium: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Premium ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={newPlanForm.maxPremium} onChange={(e) => setNewPlanForm({ ...newPlanForm, maxPremium: Number(e.target.value) })} />
-                    </div>
-                  </div>
-
-                  {/* Relational Master Benefits Checkbox Selection */}
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Select Included Policy Benefits</label>
-                    <div className="bg-light p-3 rounded-3 border">
-                      {masterBenefits.map((ben) => {
-                        const isChecked = (newPlanForm.benefitIds || []).map(Number).includes(Number(ben.id));
-                        return (
-                          <div key={ben.id} className="form-check mb-2 style-small">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`add-ben-${ben.id}`}
-                              checked={isChecked}
-                              onChange={() => handleBenefitCheckboxToggle(ben.id, false)}
-                            />
-                            <label className="form-check-label text-dark fw-medium" htmlFor={`add-ben-${ben.id}`}>
-                              {ben.name}
-                            </label>
-                            <div className="text-muted" style={{ fontSize: '0.75rem' }}>{ben.description}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="modal-footer border-top bg-light p-3 mt-auto">
-                  <button type="button" className="btn btn-light btn-sm" onClick={() => setShowAddModal(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary btn-sm px-4 fw-bold">Create Insurance Plan</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <AddPlanModal
+        show={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleCreatePlan}
+        formData={newPlanForm}
+        setFormData={setNewPlanForm}
+        masterBenefits={masterBenefits}
+        onBenefitToggle={handleBenefitCheckboxToggle}
+      />
 
       {/* Edit Plan Modal */}
-      {showEditModal && (
-        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content rounded-4 border-0 shadow-lg" style={{ maxHeight: '90vh', overflow: 'hidden' }}>
-              <div className="modal-header border-bottom bg-light">
-                <h5 className="modal-title fw-bold">Edit Insurance Plan</h5>
-                <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
-              </div>
-              <form onSubmit={handleUpdatePlan} className="d-flex flex-column" style={{ maxHeight: 'calc(90vh - 65px)' }}>
-                <div className="modal-body p-4" style={{ overflowY: 'auto' }}>
-                  <div className="row g-2 mb-3">
-                    <div className="col-6">
-                      <label className="form-label small fw-semibold">Plan Name *</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        required
-                        value={editPlanForm.name}
-                        onChange={(e) => setEditPlanForm({ ...editPlanForm, name: e.target.value })}
-                      />
-                    </div>
-                    <div className="col-6">
-                      <label className="form-label small fw-semibold">Slug *</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        required
-                        value={editPlanForm.slug}
-                        onChange={(e) => setEditPlanForm({ ...editPlanForm, slug: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Description</label>
-                    <textarea
-                      className="form-control form-control-sm"
-                      rows="2"
-                      value={editPlanForm.description}
-                      onChange={(e) => setEditPlanForm({ ...editPlanForm, description: e.target.value })}
-                    ></textarea>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Eligibility Description</label>
-                    <textarea
-                      className="form-control form-control-sm"
-                      rows="2"
-                      value={editPlanForm.eligibilityDescription}
-                      onChange={(e) => setEditPlanForm({ ...editPlanForm, eligibilityDescription: e.target.value })}
-                    ></textarea>
-                  </div>
-
-                  <div className="row g-2 mb-3">
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Age</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.minAge} onChange={(e) => setEditPlanForm({ ...editPlanForm, minAge: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Age</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.maxAge} onChange={(e) => setEditPlanForm({ ...editPlanForm, maxAge: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Coverage ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.minCoverage} onChange={(e) => setEditPlanForm({ ...editPlanForm, minCoverage: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Coverage ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.maxCoverage} onChange={(e) => setEditPlanForm({ ...editPlanForm, maxCoverage: Number(e.target.value) })} />
-                    </div>
-                  </div>
-
-                  <div className="row g-2 mb-3">
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Term (yrs)</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.minPolicyTerm} onChange={(e) => setEditPlanForm({ ...editPlanForm, minPolicyTerm: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Term (yrs)</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.maxPolicyTerm} onChange={(e) => setEditPlanForm({ ...editPlanForm, maxPolicyTerm: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Min Premium ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.minPremium} onChange={(e) => setEditPlanForm({ ...editPlanForm, minPremium: Number(e.target.value) })} />
-                    </div>
-                    <div className="col-3">
-                      <label className="form-label small fw-semibold">Max Premium ($)</label>
-                      <input type="number" className="form-control form-control-sm" value={editPlanForm.maxPremium} onChange={(e) => setEditPlanForm({ ...editPlanForm, maxPremium: Number(e.target.value) })} />
-                    </div>
-                  </div>
-
-                  {/* Relational Master Benefits Checkbox Selection */}
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Select Included Policy Benefits</label>
-                    <div className="bg-light p-3 rounded-3 border">
-                      {masterBenefits.map((ben) => {
-                        const isChecked = (editPlanForm.benefitIds || []).map(Number).includes(Number(ben.id));
-                        return (
-                          <div key={ben.id} className="form-check mb-2 style-small">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`edit-ben-${ben.id}`}
-                              checked={isChecked}
-                              onChange={() => handleBenefitCheckboxToggle(ben.id, true)}
-                            />
-                            <label className="form-check-label text-dark fw-medium" htmlFor={`edit-ben-${ben.id}`}>
-                              {ben.name}
-                            </label>
-                            <div className="text-muted" style={{ fontSize: '0.75rem' }}>{ben.description}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="modal-footer border-top bg-light p-3 mt-auto">
-                  <button type="button" className="btn btn-light btn-sm" onClick={() => setShowEditModal(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary btn-sm px-4 fw-bold">Save Plan Changes</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditPlanModal
+        show={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSubmit={handleUpdatePlan}
+        formData={editPlanForm}
+        setFormData={setEditPlanForm}
+        masterBenefits={masterBenefits}
+        onBenefitToggle={handleBenefitCheckboxToggle}
+      />
     </div>
   );
 };

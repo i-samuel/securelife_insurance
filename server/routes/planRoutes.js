@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const planController = require('../controllers/planController');
 const { protect, requireRole } = require('../middleware/authMiddleware');
+const { validatePlan } = require('../middleware/validateMiddleware');
 
 // Public routes for Landing Page / Visitors
 router.get('/public', planController.getPublicPlans);
@@ -14,8 +15,8 @@ router.get('/', planController.getPlans);
 router.get('/:identifier', planController.getPlan);
 
 // Admin-only plan management
-router.post('/', requireRole('ADMIN'), planController.createPlan);
-router.put('/:id', requireRole('ADMIN'), planController.updatePlan);
+router.post('/', requireRole('ADMIN'), validatePlan, planController.createPlan);
+router.put('/:id', requireRole('ADMIN'), validatePlan, planController.updatePlan);
 router.patch('/:id/status', requireRole('ADMIN'), planController.togglePlanStatus);
 
 module.exports = router;

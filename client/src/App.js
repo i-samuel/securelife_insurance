@@ -13,6 +13,7 @@ import AdminRoute from './components/common/AdminRoute';
 // Views
 import HomeView from './views/public/HomeView';
 import PlansView from './views/public/PlansView';
+import QuoteView from './views/public/QuoteView';
 import LoginView from './views/crm/LoginView';
 import DashboardView from './views/crm/DashboardView';
 import LeadsView from './views/crm/LeadsView';
@@ -39,6 +40,14 @@ function App() {
             element={
               <PublicLayout>
                 <PlansView />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/quote"
+            element={
+              <PublicLayout>
+                <QuoteView />
               </PublicLayout>
             }
           />

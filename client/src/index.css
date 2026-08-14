@@ -148,7 +148,6 @@ body {
   border-radius: 12px;
   padding: 1.25rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-
 }
 
 .metric-value {
@@ -222,4 +221,42 @@ body {
   font-weight: 600;
   padding: 0.25rem 0.6rem;
   border-radius: 12px;
+}
+
+/* -------------------------------------------------------------
+   Micro-Animations & Visual Enhancements for Public Website
+-------------------------------------------------------------- */
+
+/* Arrow Button Micro-Animation */
+.btn-animate-arrow svg {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-animate-arrow:hover svg {
+  transform: translateX(5px);
+}
+
+/* Plan Cards Hover Animation */
+.plan-card-hover {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.plan-card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 22px 38px rgba(2, 101, 220, 0.14) !important;
+  border-color: #0265DC !important;
+}
+
+/* Polished Table Styling */
+.compare-matrix-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.compare-matrix-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.compare-matrix-table tbody tr:hover {
+  background-color: #F8FAFC !important;
 }

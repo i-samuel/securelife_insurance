@@ -7,6 +7,7 @@ const { validatePlan } = require('../middleware/validateMiddleware');
 // Public routes for Landing Page / Visitors
 router.get('/public', planController.getPublicPlans);
 router.get('/public/:identifier', planController.getPlan);
+router.get('/benefits', planController.getBenefits);
 router.post('/recommend', planController.recommendPlans);
 
 // Protected CRM routes

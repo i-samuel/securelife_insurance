@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 import { Plus, Mail, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 
 const UsersView = () => {
@@ -9,6 +10,8 @@ const UsersView = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { user: currentUser } = useAuth();
 
   const initialUserFormState = {
     firstName: '',
@@ -65,14 +68,14 @@ const UsersView = () => {
     }
   };
 
-  const openEditUserModal = (user) => {
+  const openEditUserModal = (userToEdit) => {
     setEditUserForm({
-      id: user.id,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      email: user.email,
-      roleId: user.role_id,
-      isActive: user.is_active,
+      id: userToEdit.id,
+      firstName: userToEdit.first_name,
+      lastName: userToEdit.last_name,
+      email: userToEdit.email,
+      roleId: userToEdit.role_id,
+      isActive: userToEdit.is_active,
       password: '',
     });
     setShowEditModal(true);
@@ -93,6 +96,10 @@ const UsersView = () => {
   };
 
   const handleDeleteUser = async (userId, userName) => {
+    if (currentUser && Number(userId) === Number(currentUser.id)) {
+      alert('You cannot delete your own active administrator account.');
+      return;
+    }
     if (!window.confirm(`Are you sure you want to delete user account for "${userName}"? Assigned leads will be set to unassigned.`)) {
       return;
     }
@@ -154,6 +161,9 @@ const UsersView = () => {
                         </div>
                         <div className="fw-semibold text-dark">
                           {u.first_name} {u.last_name}
+                          {currentUser && Number(u.id) === Number(currentUser.id) && (
+                            <span className="badge bg-primary-subtle text-primary ms-2 style-small">You</span>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -190,8 +200,9 @@ const UsersView = () => {
                         </button>
                         <button
                           className="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 style-small"
+                          disabled={currentUser && Number(u.id) === Number(currentUser.id)}
                           onClick={() => handleDeleteUser(u.id, `${u.first_name} ${u.last_name}`)}
-                          title="Delete User"
+                          title={currentUser && Number(u.id) === Number(currentUser.id) ? "Cannot delete own account" : "Delete User"}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -382,11 +393,17 @@ const UsersView = () => {
                       <select
                         className="form-select form-select-sm"
                         value={editUserForm.isActive}
+                        disabled={currentUser && Number(editUserForm.id) === Number(currentUser.id)}
                         onChange={(e) => setEditUserForm({ ...editUserForm, isActive: e.target.value === 'true' })}
                       >
                         <option value="true">Active</option>
                         <option value="false">Inactive</option>
                       </select>
+                      {currentUser && Number(editUserForm.id) === Number(currentUser.id) && (
+                        <div className="style-small text-muted mt-1" style={{ fontSize: '0.72rem' }}>
+                          (Cannot deactivate own active account)
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

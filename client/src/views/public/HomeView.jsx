@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
-import { Shield, CheckCircle, ArrowRight, PhoneCall, Sparkles, Send } from 'lucide-react';
+import { Shield, CheckCircle } from 'lucide-react';
 
 const HomeView = () => {
   const [plans, setPlans] = useState([]);
@@ -138,36 +138,41 @@ const HomeView = () => {
                 <div className="spinner-border text-primary"></div>
               </div>
             ) : (
-              plans.map((plan) => (
-                <div key={plan.id} className="col-12 col-md-4">
-                  <div className="card h-100 border-0 shadow-sm rounded-4 p-4">
-                    <div className="badge bg-primary-subtle text-primary rounded-pill w-max px-3 py-1 mb-3">
-                      Age {plan.min_age} - {plan.max_age} yrs
-                    </div>
-                    <h4 className="fw-bold text-dark mb-2">{plan.name}</h4>
-                    <p className="text-secondary small mb-3">{plan.description}</p>
-                    
-                    <div className="fs-3 fw-bold text-primary mb-3">
-                      ${plan.min_premium} <span className="fs-6 text-muted font-normal">/ mo starting</span>
-                    </div>
+              plans.map((plan) => {
+                const includedBenefits = (plan.benefits || []).filter(
+                  (b) => (typeof b === 'object' ? b.isIncluded : true)
+                );
+                return (
+                  <div key={plan.id} className="col-12 col-md-4">
+                    <div className="card h-100 border-0 shadow-sm rounded-4 p-4">
+                      <div className="badge bg-primary-subtle text-primary rounded-pill w-max px-3 py-1 mb-3">
+                        Age {plan.min_age} - {plan.max_age} yrs
+                      </div>
+                      <h4 className="fw-bold text-dark mb-2">{plan.name}</h4>
+                      <p className="text-secondary small mb-3">{plan.description}</p>
+                      
+                      <div className="fs-3 fw-bold text-primary mb-3">
+                        ${plan.min_premium} <span className="fs-6 text-muted font-normal">/ mo starting</span>
+                      </div>
 
-                    <div className="border-top pt-3 mt-auto">
-                      <div className="fw-semibold small text-dark mb-2">Key Coverage & Benefits:</div>
-                      <ul className="list-unstyled mb-4 small">
-                        {(plan.benefits || []).map((ben, idx) => (
-                          <li key={idx} className="d-flex align-items-center gap-2 mb-2 text-secondary">
-                            <CheckCircle size={16} className="text-success flex-shrink-0" />
-                            <span>{ben}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <a href="#quote-form" className="btn btn-outline-primary w-100 rounded-pill fw-semibold">
-                        Select This Plan
-                      </a>
+                      <div className="border-top pt-3 mt-auto">
+                        <div className="fw-semibold small text-dark mb-2">Key Coverage & Benefits:</div>
+                        <ul className="list-unstyled mb-4 small">
+                          {includedBenefits.map((ben, idx) => (
+                            <li key={idx} className="d-flex align-items-center gap-2 mb-2 text-secondary">
+                              <CheckCircle size={16} className="text-success flex-shrink-0" />
+                              <span>{typeof ben === 'object' ? ben.name : ben}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <a href="#quote-form" className="btn btn-outline-primary w-100 rounded-pill fw-semibold">
+                          Select This Plan
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

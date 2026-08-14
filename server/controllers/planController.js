@@ -35,6 +35,23 @@ const getPlans = async (req, res) => {
   }
 };
 
+const getBenefits = async (req, res) => {
+  try {
+    const benefits = await planModel.getAllBenefits();
+    return res.status(200).json({
+      status: 'success',
+      results: benefits.length,
+      data: { benefits },
+    });
+  } catch (error) {
+    console.error('Error fetching master benefits:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error fetching benefits list.',
+    });
+  }
+};
+
 const getPlan = async (req, res) => {
   try {
     const { identifier } = req.params;
@@ -206,6 +223,7 @@ const recommendPlans = async (req, res) => {
 module.exports = {
   getPublicPlans,
   getPlans,
+  getBenefits,
   getPlan,
   createPlan,
   updatePlan,

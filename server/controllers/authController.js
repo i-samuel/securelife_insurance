@@ -166,6 +166,14 @@ const updateUser = async (req, res) => {
       });
     }
 
+    // Prevent Admin from deactivating their own currently logged-in account
+    if (parseInt(id, 10) === req.user.id && (isActive === false || isActive === 'false')) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'You cannot deactivate your own active administrator account.',
+      });
+    }
+
     let passwordHash = null;
     if (password && password.trim().length >= 6) {
       passwordHash = await bcrypt.hash(password.trim(), 10);

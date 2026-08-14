@@ -6,6 +6,8 @@
 DROP TABLE IF EXISTS lead_activities CASCADE;
 DROP TABLE IF EXISTS lead_notes CASCADE;
 DROP TABLE IF EXISTS leads CASCADE;
+DROP TABLE IF EXISTS plan_benefits CASCADE;
+DROP TABLE IF EXISTS benefits CASCADE;
 DROP TABLE IF EXISTS insurance_plans CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS roles CASCADE;
@@ -61,7 +63,7 @@ CREATE TABLE users (
 
 CREATE UNIQUE INDEX uq_users_email_lower ON users (LOWER(email));
 
--- 4. INSURANCE PLANS
+-- 4. INSURANCE PLANS (Normalized, benefits moved to relational junction table)
 CREATE TABLE insurance_plans (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
@@ -75,7 +77,6 @@ CREATE TABLE insurance_plans (
     max_policy_term INTEGER NOT NULL,
     min_premium NUMERIC(15, 2) NOT NULL,
     max_premium NUMERIC(15, 2) NOT NULL,
-    benefits JSONB NOT NULL DEFAULT '[]'::jsonb,
     eligibility_description TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -87,11 +88,31 @@ CREATE TABLE insurance_plans (
     CONSTRAINT insurance_plans_age_valid CHECK (min_age >= 0 AND max_age >= min_age),
     CONSTRAINT insurance_plans_coverage_valid CHECK (min_coverage >= 0 AND max_coverage >= min_coverage),
     CONSTRAINT insurance_plans_policy_term_valid CHECK (min_policy_term > 0 AND max_policy_term >= min_policy_term),
-    CONSTRAINT insurance_plans_premium_valid CHECK (min_premium >= 0 AND max_premium >= min_premium),
-    CONSTRAINT insurance_plans_benefits_array CHECK (jsonb_typeof(benefits) = 'array')
+    CONSTRAINT insurance_plans_premium_valid CHECK (min_premium >= 0 AND max_premium >= min_premium)
 );
 
--- 5. LEADS
+-- 5. MASTER BENEFITS TABLE
+CREATE TABLE benefits (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(150) NOT NULL UNIQUE,
+    description TEXT,
+    category VARCHAR(50) DEFAULT 'General',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT benefits_name_not_empty CHECK (length(trim(name)) > 0)
+);
+
+-- 6. PLAN BENEFITS JUNCTION TABLE (Many-to-Many Normalized)
+CREATE TABLE plan_benefits (
+    plan_id BIGINT NOT NULL,
+    benefit_id BIGINT NOT NULL,
+    is_included BOOLEAN NOT NULL DEFAULT TRUE,
+    notes VARCHAR(150),
+    PRIMARY KEY (plan_id, benefit_id),
+    CONSTRAINT fk_plan_benefits_plan FOREIGN KEY (plan_id) REFERENCES insurance_plans(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_plan_benefits_benefit FOREIGN KEY (benefit_id) REFERENCES benefits(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- 7. LEADS
 CREATE TABLE leads (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
@@ -127,7 +148,7 @@ CREATE INDEX idx_leads_assigned_advisor ON leads (assigned_advisor_id);
 CREATE INDEX idx_leads_created_at ON leads (created_at DESC);
 CREATE INDEX idx_leads_interested_plan ON leads (interested_plan_id);
 
--- 6. LEAD NOTES
+-- 8. LEAD NOTES
 CREATE TABLE lead_notes (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     lead_id BIGINT NOT NULL,
@@ -144,7 +165,7 @@ CREATE INDEX idx_lead_notes_lead_id ON lead_notes (lead_id);
 CREATE INDEX idx_lead_notes_user_id ON lead_notes (user_id);
 CREATE INDEX idx_lead_notes_created_at ON lead_notes (created_at DESC);
 
--- 7. LEAD ACTIVITIES
+-- 9. LEAD ACTIVITIES
 CREATE TABLE lead_activities (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     lead_id BIGINT NOT NULL,
@@ -161,7 +182,7 @@ CREATE INDEX idx_lead_activities_user_id ON lead_activities (user_id);
 CREATE INDEX idx_lead_activities_created_at ON lead_activities (created_at DESC);
 CREATE INDEX idx_lead_activities_type ON lead_activities (activity_type);
 
--- 8. INITIAL ROLES
+-- 10. INITIAL ROLES
 INSERT INTO roles (name, description)
 VALUES
     ('ADMIN', 'System administrator / manager'),

@@ -154,6 +154,31 @@ const togglePlanStatus = async (req, res) => {
   }
 };
 
+const deletePlan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const existing = await planModel.getPlanById(id);
+    if (!existing) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Insurance plan not found.',
+      });
+    }
+
+    await planModel.deletePlan(id);
+    return res.status(200).json({
+      status: 'success',
+      message: 'Insurance plan deleted successfully.',
+    });
+  } catch (error) {
+    console.error('Error deleting plan:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error deleting insurance plan.',
+    });
+  }
+};
+
 const recommendPlans = async (req, res) => {
   try {
     const { age, dateOfBirth, requestedCoverage, requestedPolicyTerm, monthlyBudget } = req.body;
@@ -185,5 +210,6 @@ module.exports = {
   createPlan,
   updatePlan,
   togglePlanStatus,
+  deletePlan,
   recommendPlans,
 };

@@ -1,0 +1,225 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+:root {
+  --crm-sidebar-bg: #0B132B;
+  --crm-sidebar-hover: #1C2541;
+  --crm-sidebar-active: #2563EB;
+  --crm-bg-light: #F8FAFC;
+  --crm-card-border: #E2E8F0;
+  --crm-primary: #2563EB;
+  --crm-text-muted: #64748B;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--crm-bg-light);
+  color: #1E293B;
+}
+
+/* CRM Layout */
+.crm-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Dark Sidebar */
+.crm-sidebar {
+  width: 250px;
+  background-color: var(--crm-sidebar-bg);
+  color: #F8FAFC;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem 1rem;
+  flex-shrink: 0;
+}
+
+.crm-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.crm-brand-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--crm-primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.crm-nav-section {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94A3B8;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.crm-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  color: #CBD5E1;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+.crm-nav-link:hover {
+  background-color: var(--crm-sidebar-hover);
+  color: #FFFFFF;
+}
+
+.crm-nav-link.active {
+  background-color: var(--crm-sidebar-active);
+  color: #FFFFFF;
+}
+
+.crm-user-footer {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 0.85rem;
+  margin-top: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* CRM Content Wrapper */
+.crm-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--crm-bg-light);
+  overflow-x: hidden;
+}
+
+/* Topbar Header */
+.crm-topbar {
+  height: 64px;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--crm-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.crm-search-input {
+  width: 320px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 0.4rem 1rem 0.4rem 2.5rem;
+  font-size: 0.88rem;
+}
+
+.crm-avatar-pill {
+  width: 34px;
+  height: 34px;
+  background: #0F172A;
+  color: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+/* Dashboard Cards */
+.metric-card {
+  background: #FFFFFF;
+  border: 1px solid var(--crm-card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+
+}
+
+.metric-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+/* Pipeline Bars */
+.pipeline-bar-container {
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.pipeline-bar-fill {
+  height: 100%;
+  background: var(--crm-primary);
+  border-radius: 3px;
+}
+
+/* Status Badges */
+.badge-status-new {
+  background-color: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+
+.badge-status-contacted {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.badge-status-qualified {
+  background-color: #F5F3FF;
+  color: #7C3AED;
+  border: 1px solid #DDD6FE;
+}
+
+.badge-status-proposal {
+  background-color: #FFF7ED;
+  color: #EA580C;
+  border: 1px solid #FFEDD5;
+}
+
+.badge-status-converted {
+  background-color: #F0FDF4;
+  color: #16A34A;
+  border: 1px solid #BBF7D0;
+}
+
+.badge-status-lost {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.badge-unassigned {
+  background-color: #FEFCE8;
+  color: #CA8A04;
+  border: 1px solid #FEF08A;
+}
+
+/* Advisor Workload Tag */
+.won-tag {
+  background: #ECFDF5;
+  color: #059669;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+}

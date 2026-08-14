@@ -9,5 +9,7 @@ router.use(protect);
 router.get('/', authController.getUsers);
 router.get('/roles', authController.getRoles);
 router.post('/', requireRole('ADMIN'), validateCreateUser, authController.createUser);
+router.put('/:id', requireRole('ADMIN'), authController.updateUser);
+router.delete('/:id', requireRole('ADMIN'), authController.deleteUser);
 
 module.exports = router;

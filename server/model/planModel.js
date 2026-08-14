@@ -159,6 +159,12 @@ const togglePlanActive = async (id, isActive) => {
   return res.rows[0];
 };
 
+const deletePlan = async (id) => {
+  const queryText = `DELETE FROM insurance_plans WHERE id = $1 RETURNING id;`;
+  const res = await db.query(queryText, [id]);
+  return res.rows[0];
+};
+
 module.exports = {
   getAllPlans,
   getPlanById,
@@ -166,4 +172,5 @@ module.exports = {
   createPlan,
   updatePlan,
   togglePlanActive,
+  deletePlan,
 };

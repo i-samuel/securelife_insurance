@@ -18,5 +18,6 @@ router.get('/:identifier', planController.getPlan);
 router.post('/', requireRole('ADMIN'), validatePlan, planController.createPlan);
 router.put('/:id', requireRole('ADMIN'), validatePlan, planController.updatePlan);
 router.patch('/:id/status', requireRole('ADMIN'), planController.togglePlanStatus);
+router.delete('/:id', requireRole('ADMIN'), planController.deletePlan);
 
 module.exports = router;

@@ -94,8 +94,8 @@ const getMe = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-    const { role, search } = req.query;
-    const users = await userModel.getAllUsers({ role, search });
+    const { role, search, activeOnly } = req.query;
+    const users = await userModel.getAllUsers({ role, search, activeOnly: activeOnly === 'true' });
 
     return res.status(200).json({
       status: 'success',
@@ -153,6 +153,80 @@ const createUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { firstName, lastName, email, roleId, isActive, password } = req.body;
+
+    const existing = await userModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found.',
+      });
+    }
+
+    let passwordHash = null;
+    if (password && password.trim().length >= 6) {
+      passwordHash = await bcrypt.hash(password.trim(), 10);
+    }
+
+    const updatedUser = await userModel.updateUser(id, {
+      firstName,
+      lastName,
+      email,
+      roleId,
+      isActive,
+      passwordHash,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'User account updated successfully.',
+      data: { user: updatedUser },
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error updating user account.',
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const existing = await userModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found.',
+      });
+    }
+
+    // Prevent Admin from deleting their own logged-in account
+    if (parseInt(id, 10) === req.user.id) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'You cannot delete your own active administrator account.',
+      });
+    }
+
+    await userModel.deleteUser(id);
+    return res.status(200).json({
+      status: 'success',
+      message: 'User account deleted successfully.',
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error deleting user account.',
+    });
+  }
+};
+
 const getRoles = async (req, res) => {
   try {
     const roles = await userModel.getRoles();
@@ -174,5 +248,7 @@ module.exports = {
   getMe,
   getUsers,
   createUser,
+  updateUser,
+  deleteUser,
   getRoles,
 };

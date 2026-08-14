@@ -3,7 +3,6 @@ dotenv.config();
 const express = require('express');
 const helmet = require("helmet");
 const cors = require('cors');
-const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -13,24 +12,52 @@ const leadRoutes = require('./routes/leadRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Helmet
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+  })
+);
 
-// Health Check
+// CORS Policy
+const allowedOrigins = [
+  process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:3000',
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS policy violation: Origin not allowed.'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+// Body Parser
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'success',
     message: 'SecureLife Insurance CRM API is running smoothly',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
-// API Routes
+//Route Handlers
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/plans', planRoutes);
@@ -41,9 +68,16 @@ app.use('/api/dashboard', dashboardRoutes);
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('Unhandled Error:', err);
-  res.status(err.status || 500).json({
+  const statusCode = err.status || 500;
+
+  const responseMessage =
+    process.env.NODE_ENV === 'production' && statusCode === 500
+      ? 'An unexpected internal server error occurred.'
+      : err.message || 'Internal server error';
+
+  res.status(statusCode).json({
     status: 'error',
-    message: err.message || 'Internal server error'
+    message: responseMessage,
   });
 });
 

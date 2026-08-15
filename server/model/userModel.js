@@ -28,7 +28,8 @@ const getAllUsers = async ({ role = null, search = null, activeOnly = false } = 
   let queryText = `
     SELECT u.id, u.role_id, u.first_name, u.last_name, u.email, u.is_active, u.created_at,
            r.name AS role_name,
-           (SELECT COUNT(*) FROM leads l WHERE l.assigned_advisor_id = u.id) AS assigned_leads_count
+           (SELECT COUNT(*) FROM leads l WHERE l.assigned_advisor_id = u.id) AS assigned_leads_count,
+           (SELECT COUNT(*) FROM leads l WHERE l.assigned_advisor_id = u.id AND l.status = 'CONVERTED') AS converted_leads_count
     FROM users u
     JOIN roles r ON u.role_id = r.id
     WHERE 1=1
@@ -101,7 +102,6 @@ const updateUser = async (id, { firstName, lastName, email, roleId, isActive, pa
 };
 
 const deleteUser = async (id) => {
-  // First unassign any leads assigned to this user before deletion to maintain integrity
   await db.query('UPDATE leads SET assigned_advisor_id = NULL WHERE assigned_advisor_id = $1', [id]);
   const queryText = `DELETE FROM users WHERE id = $1 RETURNING id;`;
   const res = await db.query(queryText, [id]);

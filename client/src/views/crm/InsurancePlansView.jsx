@@ -13,7 +13,7 @@ const InsurancePlansView = () => {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  
+
   const initialPlanFormState = {
     name: '',
     slug: '',
@@ -241,7 +241,7 @@ const InsurancePlansView = () => {
                     </div>
                   )}
 
-                  <div className="border-top pt-3 mt-auto">
+                  <div className="border-top pt-3">
                     <div className="fw-semibold small text-secondary mb-2">Included Relational Benefits:</div>
                     <div className="d-flex flex-column gap-1">
                       {includedBenefits.length === 0 ? (

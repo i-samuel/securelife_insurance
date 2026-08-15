@@ -110,7 +110,12 @@ const getDashboardStats = async (advisorId = null) => {
 
   const recentActivitiesRes = await db.query(recentActivitiesQuery, actParams);
 
-  // 5. 100% Accurate Real Monthly Trend Query (Last 6 Months)
+  // 5. 100% Accurate Real Monthly Trend Query (Clean WHERE Clause handling for Advisors)
+  let trendWhere = "WHERE created_at >= NOW() - INTERVAL '6 months'";
+  if (advisorId) {
+    trendWhere += " AND assigned_advisor_id = $1";
+  }
+
   let trendQuery = `
     SELECT 
       TO_CHAR(DATE_TRUNC('month', created_at), 'Mon') AS month,
@@ -118,8 +123,7 @@ const getDashboardStats = async (advisorId = null) => {
       COUNT(CASE WHEN status = 'CONVERTED' THEN 1 END) AS conversions,
       MIN(DATE_TRUNC('month', created_at)) AS month_date
     FROM leads
-    ${whereClause}
-    WHERE created_at >= NOW() - INTERVAL '6 months'
+    ${trendWhere}
     GROUP BY DATE_TRUNC('month', created_at), TO_CHAR(DATE_TRUNC('month', created_at), 'Mon')
     ORDER BY month_date ASC;
   `;

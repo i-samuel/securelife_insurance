@@ -268,7 +268,7 @@ const LeadsView = () => {
             </div>
           )}
 
-          <div className="col-12 col-md-2 text-end ms-auto">
+          <div className="col-12 col-md-2 text-end">
             <button
               className="btn btn-sm btn-outline-secondary rounded-pill px-3 w-100"
               onClick={() => {
@@ -349,7 +349,7 @@ const LeadsView = () => {
                         className="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 style-small"
                         onClick={() => handleOpenDetail(lead.id)}
                       >
-                        <Eye size={14} className="me-1" /> View & Match
+                        <Eye size={14} className="me-1" /> View / Manage
                       </button>
                     </td>
                   </tr>

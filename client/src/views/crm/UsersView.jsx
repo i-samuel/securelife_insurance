@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { UserPlus, ToggleLeft, ToggleRight, Trash2, Edit } from 'lucide-react';
+import { UserPlus, Trash2, Edit } from 'lucide-react';
 
 // Modular CRM Components
 import AddUserModal from '../../components/crm/AddUserModal';
@@ -55,23 +55,6 @@ const UsersView = () => {
   useEffect(() => {
     fetchUsersAndRoles();
   }, [fetchUsersAndRoles]);
-
-  const handleToggleActive = async (targetUser) => {
-    if (targetUser.id === currentUser.id) {
-      alert('You cannot deactivate your own active logged-in account.');
-      return;
-    }
-
-    try {
-      await apiFetch(`/users/${targetUser.id}/status`, {
-        method: 'PATCH',
-        body: { isActive: !targetUser.is_active },
-      });
-      fetchUsersAndRoles();
-    } catch (err) {
-      alert(err.message || 'Failed to update user status');
-    }
-  };
 
   const handleDeleteUser = async (targetUser) => {
     if (targetUser.id === currentUser.id) {
@@ -193,7 +176,7 @@ const UsersView = () => {
                       </td>
                       <td className="text-secondary">{u.email}</td>
                       <td>
-                        <span className={`badge ${u.role_name === 'ADMIN' ? 'bg-purple-subtle text-purple border' : 'bg-info-subtle text-info border'}`}>
+                        <span className={`badge ${u.role_name === 'ADMIN' ? 'bg-dark-subtle text-dark border fw-bold' : 'bg-info-subtle text-info-emphasis border'}`}>
                           {u.role_name}
                         </span>
                       </td>
@@ -223,14 +206,6 @@ const UsersView = () => {
                             title={isSelf ? 'Cannot delete yourself' : 'Delete User'}
                           >
                             <Trash2 size={14} />
-                          </button>
-                          <button
-                            className="btn btn-link p-0 text-decoration-none ms-1"
-                            disabled={isSelf}
-                            onClick={() => handleToggleActive(u)}
-                            title={isSelf ? 'Cannot deactivate yourself' : 'Toggle active status'}
-                          >
-                            {u.is_active ? <ToggleRight size={26} className={isSelf ? 'text-muted' : 'text-success'} /> : <ToggleLeft size={26} className="text-secondary" />}
                           </button>
                         </div>
                       </td>

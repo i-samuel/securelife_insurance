@@ -19,7 +19,6 @@ An enterprise-grade, full-stack **PERN** (PostgreSQL, Express.js, React 18, Node
 - **Role-Based Access Control (RBAC)**:
   - **`ADMIN`**: System-wide administrative privileges (analytics, lead assignment, staff account registration, insurance policy configuration, master benefits management).
   - **`ADVISOR`**: Dedicated advisor workspace (assigned lead sheet, pipeline status updates, lead notes, profile configuration).
-- **Relational Benefits Normalization**: Architecture separating master insurance benefits (`benefits`) from insurance plans (`insurance_plans`) linked via a join table (`plan_benefits`), allowing flexible assignment of benefits to policy tiers.
 
 ---
 

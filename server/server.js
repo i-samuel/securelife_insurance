@@ -3,6 +3,7 @@ dotenv.config();
 const express = require('express');
 const helmet = require("helmet");
 const cors = require('cors');
+const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -32,8 +33,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'production') {
         callback(null, true);
       } else {
         callback(new Error('CORS policy violation: Origin not allowed.'));
@@ -49,6 +49,7 @@ app.use(
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
+// Health Check Endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -57,13 +58,23 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-//Route Handlers
+// Route Handlers
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/plans', planRoutes);
 app.use('/api/public/leads', publicLeadRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
+// Serve React Production Build in Production Mode
+if (process.env.NODE_ENV === 'production') {
+  const clientBuildPath = path.join(__dirname, '../client/build');
+  app.use(express.static(clientBuildPath));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
+}
 
 // Global Error Handler
 app.use((err, req, res, next) => {

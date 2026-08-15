@@ -4,8 +4,8 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-const dbName = process.env.DB_NAME || 'securelife_crm';
-const dbUser = process.env.DB_USER || 'postgres';
+const dbName = process.env.DB_NAME || 'securelife_dbb';
+const dbUser = process.env.DB_USER || 'shop_admin';
 const dbPassword = process.env.DB_PASSWORD || '1234';
 const dbHost = process.env.DB_HOST || 'localhost';
 const dbPort = process.env.DB_PORT || 5432;

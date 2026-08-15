@@ -66,12 +66,12 @@ app.use('/api/public/leads', publicLeadRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Serve React Production Build in Production Mode (Express 5 Compatible Regex Wildcard)
+// Serve React Production Build in Production Mode (Express 5 Native RegExp Compatible)
 if (process.env.NODE_ENV === 'production') {
   const clientBuildPath = path.join(__dirname, '../client/build');
   app.use(express.static(clientBuildPath));
 
-  app.get('(.*)', (req, res) => {
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.join(clientBuildPath, 'index.html'));
   });
 }
